@@ -1,9 +1,13 @@
-body { padding: 0; margin: 0 }
-#unity-container { position: absolute }
-#unity-container.unity-desktop { left: 50%; top: 50%; transform: translate(-50%, -50%) }
-#unity-container.unity-mobile { position: fixed; width: 100%; height: 100% }
-#unity-canvas { background: #231F20 }
-.unity-mobile #unity-canvas { width: 100%; height: 100% }
+body { padding: 0; margin: 0; overflow: hidden; background: #231F20 }
+#unity-container { position: absolute; inset: 0 }
+#unity-container.unity-desktop { left: 50%; top: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); inset: auto }
+#unity-container.unity-mobile { position: fixed; width: 100vw; height: 100vh; display: flex; overflow: hidden; align-items: flex-start; justify-content: center }
+#unity-container.unity-mobile.unity-portrait { align-items: center; justify-content: center }
+#unity-container.unity-mobile.unity-landscape { align-items: flex-start; justify-content: center }
+#unity-canvas { background: #231F20; display: block; object-fit: contain; object-position: center center }
+#unity-canvas.unity-mobile { width: auto; height: auto; max-width: 100vw; max-height: 100vh; margin: auto }
+#unity-container.unity-landscape #unity-canvas.unity-mobile { margin: 0 auto auto auto; object-position: center top }
+#unity-container.unity-portrait #unity-canvas.unity-mobile { margin: auto; object-position: center center }
 #unity-loading-bar { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: none }
 #unity-logo { width: 154px; height: 130px; background: url('unity-logo-dark.png') no-repeat center }
 #unity-progress-bar-empty { width: 141px; height: 18px; margin-top: 10px; margin-left: 6.5px; background: url('progress-bar-empty-dark.png') no-repeat center }

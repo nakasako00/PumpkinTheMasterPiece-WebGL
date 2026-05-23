@@ -9,7 +9,7 @@
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=1066 height=600 tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width=2556 height=1179 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -31,6 +31,11 @@
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var warningBanner = document.querySelector("#unity-warning");
+      var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      var targetWidth = 2556;
+      var targetHeight = 1179;
+      var targetAspect = targetWidth / targetHeight;
+      var isLandscape = false;
 
       // Shows a temporary message banner/ribbon for a few seconds, or
       // a permanent error message on top of the canvas if type=='error'.
@@ -59,13 +64,13 @@
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/WebGL.loader.js";
       var config = {
-        dataUrl: buildUrl + "/WebGL.data.gz",
-        frameworkUrl: buildUrl + "/WebGL.framework.js.gz",
-        codeUrl: buildUrl + "/WebGL.wasm.gz",
+        dataUrl: buildUrl + "/WebGL.data",
+        frameworkUrl: buildUrl + "/WebGL.framework.js",
+        codeUrl: buildUrl + "/WebGL.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Jan Games",
         productName: "PUMPKIN",
-        productVersion: "0.0.1",
+        productVersion: "0.2.10",
         showBanner: unityShowBanner,
       };
 
@@ -76,8 +81,30 @@
       // the canvas DOM size and WebGL render target sizes yourself.
       config.matchWebGLToCanvasSize = false;
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
+      function resizeCanvasToFitViewport() {
+        if (!isMobile) {
+          return;
+        }
+
+        var viewportWidth = window.innerWidth;
+        var viewportHeight = window.innerHeight;
+        isLandscape = viewportWidth > viewportHeight;
+        container.classList.toggle("unity-landscape", isLandscape);
+        container.classList.toggle("unity-portrait", !isLandscape);
+        // Keep the aspect ratio exact, but always expand to the full viewport width.
+        // This avoids visible side gutters on wide mobile browsers while preserving the
+        // same rendered proportions inside the Unity scene.
+        var fittedWidth = viewportWidth;
+        var fittedHeight = viewportWidth / targetAspect;
+
+        canvas.style.width = Math.floor(fittedWidth) + "px";
+        canvas.style.height = Math.floor(fittedHeight) + "px";
+        canvas.style.margin = isLandscape ? "0px auto auto auto" : "auto";
+        canvas.style.objectPosition = isLandscape ? "center top" : "center center";
+      }
+
+      if (isMobile) {
+        // Mobile device style: keep the game canvas inside the viewport without distorting its aspect ratio.
 
         var meta = document.createElement('meta');
         meta.name = 'viewport';
@@ -85,6 +112,9 @@
         document.getElementsByTagName('head')[0].appendChild(meta);
         container.className = "unity-mobile";
         canvas.className = "unity-mobile";
+        resizeCanvasToFitViewport();
+        window.addEventListener("resize", resizeCanvasToFitViewport);
+        window.addEventListener("orientationchange", resizeCanvasToFitViewport);
 
         // To lower canvas resolution on mobile devices to gain some
         // performance, uncomment the following line:
@@ -94,8 +124,8 @@
       } else {
         // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
 
-        canvas.style.width = "1066px";
-        canvas.style.height = "600px";
+        canvas.style.width = "2556px";
+        canvas.style.height = "1179px";
       }
 
       loadingBar.style.display = "block";
